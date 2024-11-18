@@ -9,7 +9,7 @@ def create_app():
     CORS(app)
 
     # Register routes
-    from app.routes import main
-    app.register_blueprint(main)
+    from app.routes import routes
+    app.register_blueprint(routes)
 
     return app
