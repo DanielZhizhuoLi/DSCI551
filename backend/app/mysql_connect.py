@@ -214,10 +214,9 @@ def verify_connection(conn):
     if conn:
         try:
             with conn.cursor() as cursor:
-                # Execute a simple query to get the current database
                 cursor.execute("SELECT DATABASE();")
                 result = cursor.fetchone()
-                print(f"Connected to database: {result['DATABASE()']}")  # Will be None if no database is selected
+                print(f"Connected to database: {result['DATABASE()']}") 
         except pymysql.MySQLError as e:
             print(f"Error verifying connection: {e}")
         finally:
