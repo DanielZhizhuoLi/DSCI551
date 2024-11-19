@@ -6,23 +6,23 @@ def get_firebase_connection():
     """
     Establish and return a connection to the Firebase Realtime Database.
     """
-    # Path to your Firebase service account key file
+    # SERVICE KEY PATH (KEY.JSON)
     service_account_path = input("Enter the path to your Firebase service account key JSON file: ").strip()
     database_url = input("Enter your Firebase Realtime Database URL: ").strip()
 
-    # Check if the service account file exists
+    # CHECK IF PATH EXISTS
     if not os.path.exists(service_account_path):
         print("Error: Service account key file not found.")
         return None
 
     try:
-        # Initialize Firebase app
+        #INITIALIZE FB APP
         cred = credentials.Certificate(service_account_path)
-        if not firebase_admin._apps:  # Check if Firebase app is already initialized
+        if not firebase_admin._apps: 
             firebase_admin.initialize_app(cred, {'databaseURL': database_url})
         print("Connected to Firebase Realtime Database!")
         
-        # Return the database reference
+        #DB REFERENCE
         return db.reference()
     except Exception as e:
         print(f"Error connecting to Firebase Realtime Database: {e}")
@@ -999,12 +999,12 @@ hospital_db = {
     }
 }
         
-# Example Usage
+#EXAMPLE USAGE
 if __name__ == "__main__":
     db_ref = get_firebase_connection()
     if db_ref:
         print("Realtime Database connection successful!")
-        # Example: Write data to the database
+        #CREATE HOSPITAL_DB
         db_ref.child("sample_db").set(hospital_db)
     else:
         print("Failed to connect to Realtime Database.")
