@@ -31,7 +31,7 @@ def create_sample_database(conn):
             cursor.execute("CREATE DATABASE IF NOT EXISTS hospital_db;")
             cursor.execute("USE hospital_db;")
 
-            # Create tables
+            #CREATE TABLES
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS province_names (
                     province_id CHAR(2) PRIMARY KEY,
