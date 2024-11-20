@@ -1,4 +1,4 @@
-hospital_db = {
+hospital_db_firebase = {
     "hospital_db": {
         "province_names": {
             "CA": "California",
