@@ -172,7 +172,7 @@ INSERT INTO admissions (patient_id, admission_date, discharge_date, diagnosis, a
 '''
 
 
-def execute_hospital_db_script(cursor):
+def execute_hospital_db_sql(cursor):
     """
     Executes the SQL script stored in `hospital_db_sql` using the provided cursor.
     
