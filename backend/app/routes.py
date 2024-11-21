@@ -1,14 +1,50 @@
-from flask import Blueprint, request, jsonify
+from flask import Flask, Blueprint, jsonify, request
 import csv
 from io import StringIO
-from app.mysql_connect import get_mysql_connection
-from app.firebase_connect import get_firebase_connection
+from mysql_connect import get_mysql_connection
+from firebase_connect import get_firebase_connection
 
 routes = Blueprint('routes', __name__)
+app = Flask(__name__)
 
-### --- CREATE --- ###
+# Initialize Firebase
+firebase_db = get_firebase_connection()
 
-@routes.route('/sql/create', methods=['POST'])
+@app.route('/mysql/test', methods=['GET'])
+def mysql_test():
+    """
+    Test MySQL connection and return some data.
+    """
+    connection = get_mysql_connection()
+    if connection:
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT DATABASE();")  # Example query
+                result = cursor.fetchone()
+            connection.close()
+            return jsonify({'database': result[0]})
+        except Exception as e:
+            return jsonify({'error': str(e)})
+    else:
+        return jsonify({'error': 'Failed to connect to MySQL'})
+
+@app.route('/firebase/test', methods=['GET'])
+def firebase_test():
+    """
+    Test Firebase connection and retrieve data from a sample node.
+    """
+    if firebase_db:
+        try:
+            ref = firebase_db.reference('hospital_db')
+            data = ref.get()
+            return jsonify(data)
+        except Exception as e:
+            return jsonify({'error': str(e)})
+    else:
+        return jsonify({'error': 'Failed to connect to Firebase'})
+    
+    
+@app.route('/sql/create', methods=['POST'])
 def sql_create_from_csv():
     """
     Create or modify a MySQL table dynamically from a CSV file.
@@ -50,9 +86,9 @@ def sql_create_from_csv():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-@routes.route('/firebase/create', methods=['POST'])
+    
+    
+@app.route('/firebase/create', methods=['POST'])
 def firebase_create_from_csv():
     """
     Create records in Firebase from a CSV file.
@@ -88,9 +124,7 @@ def firebase_create_from_csv():
         return jsonify({"error": str(e)}), 500
 
 
-### --- READ --- ###
-
-@routes.route('/sql/read', methods=['POST'])
+@app.route('/sql/read', methods=['POST'])
 def sql_read():
     """
     Execute a specific query on MySQL and return results.
@@ -121,7 +155,7 @@ def sql_read():
         return jsonify({"error": str(e)}), 500
 
 
-@routes.route('/firebase/read', methods=['POST'])
+@app.route('/firebase/read', methods=['POST'])
 def firebase_read():
     """
     Read all documents from Firebase.
@@ -136,10 +170,7 @@ def firebase_read():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-### --- UTILITY FUNCTION --- ###
-
+    
 def create_or_alter_table(mysql_conn, column_names):
     """
     Create or alter a MySQL table to match the CSV structure.
@@ -177,3 +208,7 @@ def create_or_alter_table(mysql_conn, column_names):
                 cursor.execute(f"ALTER TABLE dynamic_table ADD COLUMN `{col}` TEXT;")
 
     mysql_conn.commit()
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
