@@ -10,7 +10,7 @@ app = Flask(__name__)
 # Initialize Firebase
 firebase_db = get_firebase_connection()
 
-@app.route('/mysql/test', methods=['GET'])
+@routes.route('/mysql/test', methods=['GET'])
 def mysql_test():
     """
     Test MySQL connection and return some data.
@@ -28,7 +28,7 @@ def mysql_test():
     else:
         return jsonify({'error': 'Failed to connect to MySQL'})
 
-@app.route('/firebase/test', methods=['GET'])
+@routes.route('/firebase/test', methods=['GET'])
 def firebase_test():
     """
     Test Firebase connection and retrieve data from a sample node.
@@ -44,7 +44,7 @@ def firebase_test():
         return jsonify({'error': 'Failed to connect to Firebase'})
     
     
-@app.route('/sql/create', methods=['POST'])
+@routes.route('/sql/create', methods=['POST'])
 def sql_create_from_csv():
     """
     Create or modify a MySQL table dynamically from a CSV file.
@@ -123,7 +123,7 @@ def firebase_create_from_csv():
 
 
 
-@app.route('/sql/read', methods=['POST'])
+@routes.route('/sql/read', methods=['POST'])
 def sql_read():
     """
     Execute a specific query on MySQL and return results.
@@ -154,7 +154,7 @@ def sql_read():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/firebase/read', methods=['POST'])
+@routes.route('/firebase/read', methods=['POST'])
 def firebase_read():
     """
     Read all data from Firebase Realtime Database.
@@ -223,4 +223,5 @@ app.register_blueprint(routes)
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
