@@ -87,11 +87,10 @@ def sql_create_from_csv():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-    
-@app.route('/firebase/create', methods=['POST'])
+@routes.route('/firebase/create', methods=['POST'])
 def firebase_create_from_csv():
     """
-    Create records in Firebase from a CSV file.
+    Upload CSV data to Firebase Realtime Database.
     """
     try:
         if 'file' not in request.files:
@@ -105,23 +104,23 @@ def firebase_create_from_csv():
         csv_data = StringIO(file.stream.read().decode('utf-8'))
         csv_reader = csv.DictReader(csv_data)
 
-        column_names = csv_reader.fieldnames
-        if not column_names:
-            return jsonify({"error": "Invalid CSV file"}), 400
-
+        # Get Firebase connection
         firebase_conn = get_firebase_connection()
+        if firebase_conn is None:
+            return jsonify({"error": "Could not connect to Firebase"}), 500
 
-        # Insert rows into Firebase
-        results = []
+        # Specify the path in Realtime Database where the data will be stored
+        ref = firebase_conn.reference('patients')
+
+        # Push rows to the database
         for row in csv_reader:
-            firebase_data = {col: row[col] for col in column_names}
-            doc_ref = firebase_conn.collection('dynamic_table').add(firebase_data)
-            results.append({"firebase_doc_id": doc_ref[1].id})
+            ref.push(row)
 
-        return jsonify({"message": "Data inserted successfully!", "results": results}), 201
+        return jsonify({"message": "CSV data successfully uploaded to Firebase"}), 200
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)}), 500 
+
 
 
 @app.route('/sql/read', methods=['POST'])
@@ -158,15 +157,25 @@ def sql_read():
 @app.route('/firebase/read', methods=['POST'])
 def firebase_read():
     """
-    Read all documents from Firebase.
+    Read all data from Firebase Realtime Database.
     """
     try:
+        # Connect to Firebase
         firebase_conn = get_firebase_connection()
-        docs = firebase_conn.collection('dynamic_table').stream()
+        if firebase_conn is None:
+            return jsonify({"error": "Could not connect to Firebase"}), 500
 
-        # Convert Firestore documents to a list of dictionaries
-        firebase_data = [{doc.id: doc.to_dict()} for doc in docs]
-        return jsonify({"firebase_data": firebase_data}), 200
+        # Reference the 'hospital_db' node
+        ref = firebase_conn.reference('hospital_db')
+
+        # Get all data from the node
+        data = ref.get()
+
+        if not data:
+            return jsonify({"message": "No data found in hospital_db"}), 200
+
+        # Return the data
+        return jsonify({"firebase_data": data}), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -210,5 +219,8 @@ def create_or_alter_table(mysql_conn, column_names):
     mysql_conn.commit()
 
 
+app.register_blueprint(routes)
+
 if __name__ == '__main__':
     app.run(debug=True)
+
