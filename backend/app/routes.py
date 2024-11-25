@@ -177,12 +177,12 @@ def mongo_from_sql(mysql_query):
     """
     import re
 
-    # Regex pattern to parse MySQL queries
+    # Updated Regex pattern to parse MySQL queries
     pattern = re.compile(
         r"SELECT\s+(?P<select>\*|[\w\.,\s]+)\s+FROM\s+(?P<table1>\w+)"
         r"(\s+AS\s+(?P<alias1>\w+))?"
         r"(\s+JOIN\s+(?P<table2>\w+)\s+ON\s+(?P<join_condition>[^\s]+(?:\s+=\s+[^\s]+)))?"
-        r"(\s+WHERE\s+(?P<where>[^ORDERBYLIMIT]+))?"
+        r"(\s+WHERE\s+(?P<where>.+?)(?=\s+ORDER\s+BY|\s+LIMIT|$))?"
         r"(\s+ORDER\s+BY\s+(?P<order_by>[^LIMIT]+))?"
         r"(\s+LIMIT\s+(?P<limit>\d+))?",
         re.IGNORECASE | re.DOTALL
@@ -212,7 +212,6 @@ def mongo_from_sql(mysql_query):
 
     # Handle JOIN
     if table2 and join_condition:
-        print("JOIN Condition (raw):", join_condition)  # Debugging print
         join_parts = join_condition.split("=")
         if len(join_parts) != 2:
             raise ValueError("JOIN condition is too complex or improperly formatted.")
@@ -230,8 +229,7 @@ def mongo_from_sql(mysql_query):
 
     # Handle SELECT fields
     if select_fields.strip() == "*":
-        # MongoDB's default behavior includes all fields, so no $project stage is needed
-        pass
+        pass  # MongoDB's default behavior includes all fields
     else:
         fields = [field.strip() for field in select_fields.split(",")]
         mongo_projection = {field.split(".")[-1]: 1 for field in fields}
@@ -263,6 +261,7 @@ def mongo_from_sql(mysql_query):
 def mongo_where_clause(where_clause):
     """
     Translates a MySQL WHERE clause to a MongoDB query object.
+    Handles simple conditions and logical operators.
     """
     operators = {
         "=": "$eq",
@@ -278,31 +277,32 @@ def mongo_where_clause(where_clause):
         "OR": "$or",
     }
 
-    # Tokenize the WHERE clause
-    tokens = re.split(r"\s+(AND|OR)\s+", where_clause, flags=re.IGNORECASE)
+    # Split the WHERE clause into tokens, preserving logical operators
+    tokens = re.split(r"(\s+AND\s+|\s+OR\s+)", where_clause, flags=re.IGNORECASE)
 
     conditions = []
-    current_operator = None
+    logical_operator = None
 
     for token in tokens:
         token = token.strip()
-        if token.upper() in logical_operators:
-            current_operator = logical_operators[token.upper()]
+        if token.upper() in logical_operators:  # Logical operators (AND/OR)
+            logical_operator = logical_operators[token.upper()]
         else:
-            # Parse individual condition
+            # Match simple conditions
             for operator, mongo_op in operators.items():
                 if operator in token:
                     field, value = token.split(operator, 1)
                     field = field.strip()
-                    value = value.strip().strip("'")
-                    value = int(value) if value.isdigit() else value
+                    value = value.strip().strip("'").strip('"')  # Remove quotes
+                    value = int(value) if value.isdigit() else value  # Convert numbers
                     conditions.append({field: {mongo_op: value}})
                     break
             else:
                 raise ValueError(f"Unsupported condition: {token}")
 
-    if current_operator and len(conditions) > 1:
-        return {current_operator: conditions}
+    # Combine conditions with the logical operator
+    if logical_operator and len(conditions) > 1:
+        return {logical_operator: conditions}
     elif len(conditions) == 1:
         return conditions[0]
     else:
