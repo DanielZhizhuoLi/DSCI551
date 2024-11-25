@@ -11,7 +11,7 @@ app = Flask(__name__)
 # Initialize MongoDB
 mongo_client = get_mongodb_connection()
 db_name = "chatdb" 
-collection_name = "sample_mfix"
+collection_name = "sample_mflix"
 
 @routes.route('/mysql/test', methods=['GET'])
 def mysql_test():
