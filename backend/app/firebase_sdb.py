@@ -973,7 +973,7 @@ def execute_hospital_db_firebase():
     Assumes the connection to Firebase has already been established.
     """
     try:
-        db_ref = get_firebase_connection()  # Assumes this function provides a valid Firebase reference
+        db_ref = get_firebase_connection() 
         if db_ref:
             db_ref.child("hospital_db").set(hospital_db_firebase)
             print("Data successfully uploaded to Firebase under 'hospital_db'.")
