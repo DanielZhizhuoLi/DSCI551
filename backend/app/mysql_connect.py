@@ -9,7 +9,7 @@ def get_mysql_connection():
             user='root',
             password='DSCI551!',
             host='localhost',
-            database='hospital_db'  # Replace with your actual database name
+            database='hospital_db'  # REPLACE WITH ACTUAL DB NAME
         )
         return connection
     except pymysql.MySQLError as e:
