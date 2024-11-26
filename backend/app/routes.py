@@ -100,7 +100,7 @@ def sql_create_from_csv():
 @routes.route('/mongodb/create', methods=['POST'])
 def mongodb_create_from_csv():
     """
-    Upload CSV data to MongoDB collection.
+    Upload CSV data to a specified MongoDB collection.
     """
     try:
         if 'file' not in request.files:
@@ -109,6 +109,11 @@ def mongodb_create_from_csv():
         file = request.files['file']
         if file.filename == '':
             return jsonify({"error": "No file selected"}), 400
+
+        # Get collection name from request
+        collection_name = request.form.get('collection_name')
+        if not collection_name:
+            return jsonify({"error": "No collection name provided"}), 400
 
         # Read CSV
         csv_data = StringIO(file.stream.read().decode('utf-8'))
@@ -121,7 +126,6 @@ def mongodb_create_from_csv():
 
         # Specify the database and collection where the data will be stored
         db_name = "chatdb"  # Replace with your MongoDB database name
-        collection_name = "patients"  # Replace with your MongoDB collection name
         db = mongo_client[db_name]
         collection = db[collection_name]
 
@@ -129,12 +133,12 @@ def mongodb_create_from_csv():
         data_to_insert = []
         for row in csv_reader:
             data_to_insert.append(row)
-        
+
         # Insert data into MongoDB
         if data_to_insert:
             collection.insert_many(data_to_insert)
 
-        return jsonify({"message": "CSV data successfully uploaded to MongoDB"}), 200
+        return jsonify({"message": f"CSV data successfully uploaded to collection '{collection_name}'"}), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -216,13 +220,13 @@ def mongo_from_sql(mysql_query):
         if len(join_parts) != 2:
             raise ValueError("JOIN condition is too complex or improperly formatted.")
         left_field, right_field = [part.strip() for part in join_parts]
-        left_field = left_field.split(".")[-1]
-        right_field = right_field.split(".")[-1]
+        left_table, left_column = left_field.split(".")
+        right_table, right_column = right_field.split(".")
         pipeline.append({
             "$lookup": {
                 "from": table2,
-                "localField": left_field,
-                "foreignField": right_field,
+                "localField": left_column,  # Use the column name from table1
+                "foreignField": right_column,  # Use the column name from table2
                 "as": f"{table2}_joined"
             }
         })
@@ -232,7 +236,16 @@ def mongo_from_sql(mysql_query):
         pass  # MongoDB's default behavior includes all fields
     else:
         fields = [field.strip() for field in select_fields.split(",")]
-        mongo_projection = {field.split(".")[-1]: 1 for field in fields}
+        mongo_projection = {}
+        for field in fields:
+            if "." in field:
+                table, column = field.split(".")
+                if table == table2:
+                    mongo_projection[f"{table2}_joined.{column}"] = 1
+                else:
+                    mongo_projection[column] = 1
+            else:
+                mongo_projection[field] = 1
         pipeline.append({"$project": mongo_projection})
 
     # Handle WHERE clause
@@ -253,10 +266,15 @@ def mongo_from_sql(mysql_query):
         mongo_limit = int(limit)
         pipeline.append({"$limit": mongo_limit})
 
+    # Debugging: Log the generated pipeline
+    print("\n--- Generated Pipeline ---")
+    print(pipeline)
+
     return {
         "collection": table1,
         "pipeline": pipeline
     }
+
 
 def mongo_where_clause(where_clause):
     """
@@ -414,6 +432,7 @@ app.register_blueprint(routes)
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
