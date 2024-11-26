@@ -6,7 +6,7 @@ def get_firebase_connection():
     Initialize and return a connection to Firebase Realtime Database.
     """
     try:
-        if not firebase_admin._apps:  # Prevent re-initializing Firebase
+        if not firebase_admin._apps:
             cred = credentials.Certificate('/Users/victorfuertes/fb_key.json')
             firebase_admin.initialize_app(cred, {
                 'databaseURL': 'https://chatdb-sampledb-default-rtdb.firebaseio.com/'
