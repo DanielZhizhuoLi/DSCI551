@@ -966,18 +966,3 @@ hospital_db_firebase = {
     }
 }
 
-def execute_hospital_db_firebase():
-    """
-    Uploads the contents of the global variable `hospital_db_firebase` 
-    to the Firebase Realtime Database under the path 'hospital_db'.
-    Assumes the connection to Firebase has already been established.
-    """
-    try:
-        db_ref = get_firebase_connection() 
-        if db_ref:
-            db_ref.child("hospital_db").set(hospital_db_firebase)
-            print("Data successfully uploaded to Firebase under 'hospital_db'.")
-        else:
-            print("Failed to connect to Firebase Realtime Database.")
-    except Exception as e:
-        print(f"An error occurred while uploading data to Firebase: {e}")
