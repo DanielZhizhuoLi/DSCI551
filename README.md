@@ -16,25 +16,25 @@ A Flask-based app   provides a unified interface for working with multiple datab
 ## Backend Deployment（under backend/）
 
 1. Install dependencies from requirements.txt:
-pip install -r requirements.txt
+- `pip install -r requirements.txt`
 
 2. Start the Flask server:
-python run.py
+-`python run.py`
 
 3. Download spaCy language model:
-python -m spacy download en_core_web_sm
+-`python -m spacy download en_core_web_sm`
 
 
 
 ## front Deployment（under react_frontend/frontend）
 1. Navigate to the Frontend Directory
-cd frontend
+-`cd react_frontend/frontend`
 
 2. Install Dependencies
-npm install
+-`npm install`
 
 3. Run the Development Server
-npm start
+-`npm start`
 
 ## API Endpoints
 
