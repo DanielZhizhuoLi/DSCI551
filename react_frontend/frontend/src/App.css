@@ -240,3 +240,46 @@ body {
 .modal-close:hover {
   color: #555;
 }
+
+.data-source-selector {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+}
+
+.selector-button {
+  padding: 10px 15px;
+  margin: 0 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+}
+
+.selector-button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 10px 0;
+}
+
+table th, table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
