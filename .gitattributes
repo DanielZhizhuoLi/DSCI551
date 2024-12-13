@@ -11,5 +11,3 @@ frontend/public/* linguist-vendored
 frontend/src/**/*.css linguist-vendored
 frontend/src/**/*.svg linguist-vendored
 
-# Treat Python as the primary language
-*.py linguist-detectable=true
