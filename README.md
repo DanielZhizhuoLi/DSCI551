@@ -62,9 +62,9 @@ A Flask-based app   provides a unified interface for working with multiple datab
 
 ### File structure
 backend/
-- ├── app/
-- │   ├── routes.py              # Main API endpoints and database operations
-│   ├── mysql_connect.py       # MySQL database connection configuration
+ ├── app/
+ │   ├── routes.py              # Main API endpoints and database operations
+ │   ├── mysql_connect.py       # MySQL database connection configuration
 │   ├── firebase_connect.py    # Firebase database connection setup
 │   ├── mongodb_connect.py     # MongoDB connection configuration
 ├── venv/                      # Python virtual environment
