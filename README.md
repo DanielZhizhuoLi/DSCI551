@@ -59,3 +59,33 @@ A Flask-based app   provides a unified interface for working with multiple datab
 ### Database Information
 - `GET /tables-info` - Retrieve comprehensive information about tables and collections from all connected databases
 
+
+### file structure
+backend/
+├── app/
+│   ├── routes.py              # Main API endpoints and database operations
+│   ├── mysql_connect.py       # MySQL database connection configuration
+│   ├── firebase_connect.py    # Firebase database connection setup
+│   ├── mongodb_connect.py     # MongoDB connection configuration
+├── venv/                      # Python virtual environment
+├── requirements.txt           # Python dependencies
+├── run.py                    # Flask application entry point
+
+frontend/
+├── src/
+│   ├── components/          # React components (UI elements like buttons, forms, and tables)
+│   ├── services/            # API service calls (e.g., connecting to backend endpoints)
+│   ├── utils/              
+│   ├── App.css              # CSS styles for the application
+│   ├── App.js               # Main React component for the app
+│   ├── firebase_query.js    # Firebase-related queries
+│   ├── index.css            # Root-level styles
+│   ├── index.js             # Application entry point for React DOM rendering
+│   ├── setupTests.js        # Test setup for React testing library
+├── public/                  # Static assets (HTML templates, public images, etc.)
+├── package.json             # Node.js dependencies and project configuration
+├── package-lock.json        # Locked versions of dependencies to ensure reproducible builds
+
+
+
+
